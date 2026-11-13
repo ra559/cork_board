@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="cork_board — a simple offline sticky notes board. Notes live in your browser's local storage and can be saved to a file on your computer.">
+  <meta name="color-scheme" content="light dark">
+  <title>cork_board</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23cf8b4e'/><rect x='6' y='7' width='20' height='18' fill='%23ffd43b'/></svg>">
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.1.0/dist/iconify-icon.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <div class="board">
+    <header class="board__header">
+      <h1 class="board__title">cork_board</h1>
+
+      <nav class="board__tools" aria-label="Board actions">
+        <button type="button" id="btnTheme" class="tool" aria-pressed="false" title="Toggle dark mode">
+          <iconify-icon icon="material-symbols:dark-mode-outline" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">Toggle dark mode</span>
+        </button>
+
+        <button type="button" id="btnOpen" class="tool" title="Open notes from a file">
+          <iconify-icon icon="material-symbols:folder-open-outline" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">Open notes from a file</span>
+        </button>
+
+        <button type="button" id="btnSave" class="tool" title="Save notes to a file">
+          <iconify-icon icon="material-symbols:save-outline" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">Save notes to a file</span>
+        </button>
+
+        <span class="tool__divider" aria-hidden="true"></span>
+
+        <button type="button" id="btnDeleteAll" class="tool" title="Delete all notes">
+          <iconify-icon icon="ant-design:delete-outlined" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">Delete all notes</span>
+        </button>
+
+        <button type="button" id="btnSelect" class="tool" aria-pressed="false" title="Select notes">
+          <iconify-icon icon="fluent-mdl2:select-all" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">Select notes</span>
+        </button>
+
+        <button type="button" id="btnNew" class="tool" title="New note">
+          <iconify-icon icon="ant-design:file-add-outlined" aria-hidden="true"></iconify-icon>
+          <span class="sr-only">New note</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="board__main">
+      <section id="selectionBar" class="selectbar" aria-label="Selection" hidden>
+        <p class="selectbar__count" id="selectionCount" role="status">0 notes selected</p>
+        <div class="selectbar__actions">
+          <button type="button" class="selectbar__btn" id="btnSelectAll">Select all</button>
+          <button type="button" class="selectbar__btn" id="btnClearSelection">Clear</button>
+          <button type="button" class="selectbar__btn selectbar__btn--danger" id="btnDeleteSelected">
+            <iconify-icon icon="ant-design:delete-outlined" aria-hidden="true"></iconify-icon>
+            Delete selected
+          </button>
+          <button type="button" class="selectbar__btn" id="btnExitSelect">Done</button>
+        </div>
+      </section>
+
+      <ul class="bento" id="notes"></ul>
+
+      <section class="empty" id="empty" hidden>
+        <p class="empty__title">The board is empty.</p>
+        <p class="empty__hint">Pin your first note — it is saved in this browser and never leaves your computer.</p>
+        <button type="button" class="empty__btn" id="btnEmptyNew">
+          <iconify-icon icon="ant-design:file-add-outlined" aria-hidden="true"></iconify-icon>
+          New note
+        </button>
+      </section>
+    </main>
+
+    <footer class="board__footer">
+      <p id="status" class="board__status" role="status">Saved locally</p>
+      <p class="board__hint">Press <kbd>N</kbd> for a new note · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> saves · <kbd>Esc</kbd> cancels</p>
+    </footer>
+  </div>
+
+  <input type="file" id="fileInput" accept="application/json,.json" hidden>
+
+  <template id="noteTemplate">
+    <li class="note">
+      <article class="note__paper">
+        <span class="note__tape" aria-hidden="true"></span>
+
+        <label class="note__select">
+          <input type="checkbox" class="note__checkbox">
+          <span class="sr-only">Select this note</span>
+        </label>
+
+        <div class="note__body">
+          <p class="note__text"></p>
+          <textarea class="note__editor" rows="4" placeholder="Write your note…" hidden></textarea>
+        </div>
+
+        <footer class="note__actions">
+          <button type="button" class="note__btn" data-action="copy" title="Copy note text">
+            <iconify-icon icon="akar-icons:copy" aria-hidden="true"></iconify-icon>
+            <span class="sr-only">Copy note text</span>
+          </button>
+          <time class="note__meta" datetime=""></time>
+          <button type="button" class="note__btn" data-action="edit" title="Edit note">
+            <iconify-icon icon="akar-icons:edit" aria-hidden="true"></iconify-icon>
+            <span class="sr-only">Edit note</span>
+          </button>
+          <button type="button" class="note__btn note__btn--danger" data-action="delete" title="Delete note">
+            <iconify-icon icon="ant-design:delete-outlined" aria-hidden="true"></iconify-icon>
+            <span class="sr-only">Delete note</span>
+          </button>
+        </footer>
+      </article>
+    </li>
+  </template>
+
+  <dialog id="confirmDialog" class="confirm">
+    <form method="dialog" class="confirm__form">
+      <h2 class="confirm__title" id="confirmTitle">Are you sure?</h2>
+      <p class="confirm__text" id="confirmText"></p>
+      <menu class="confirm__actions">
+        <button type="submit" value="cancel" class="confirm__btn">Cancel</button>
+        <button type="submit" value="extra" class="confirm__btn" id="confirmExtra" hidden>Merge</button>
+        <button type="submit" value="confirm" class="confirm__btn confirm__btn--danger" id="confirmOk">Delete</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <output id="toast" class="toast" aria-live="polite"></output>
+</body>
+</html>
